@@ -11,6 +11,7 @@ public class PlayerMove : MonoBehaviour
     private float jumpHeight = 1.0f;
     private float gravityValue = -9.81f;
     public float pushpower = 6.0f;
+    private RaycastHit hit;
     //private Rigidbody rb;
     private Vector3 pushDir;
 
@@ -21,7 +22,7 @@ public class PlayerMove : MonoBehaviour
         
     }
 
-    //every frame
+    //every frame (200 times a second)
     void Update(){
         
         if (groundedPlayer && playerVelocity.y < 0)
@@ -50,13 +51,10 @@ public class PlayerMove : MonoBehaviour
 
     }
 
-    //
+    // 50 times a second (independant of frames.. this is used to update physics)
     void FixedUpdate()
-    {
-        
-        groundedPlayer = controller.isGrounded;
-
-        
+    {    
+        groundedPlayer = isGrounded();
     }
 
     void OnControllerColliderHit(ControllerColliderHit hit){
@@ -67,11 +65,19 @@ public class PlayerMove : MonoBehaviour
             Vector3 pushDir = new Vector3(hit.moveDirection.x , 0, hit.moveDirection.z);
             rb.velocity = pushDir * pushpower;
         }
-        
               
-        
+    }
 
-                
+    bool isGrounded(){
+         if(Physics.Raycast(transform.position,-transform.up,out hit,1.0002f)){ //no transform.position.down.. so - 
+                if(hit.collider){                                               // 1.0002f because raycast pushes the player and i'm too lazy to worry about layermasks so.. 
+                    return true;                                                // shoot out a really small value past the player model
+                }
+                else{return false;}
+        }
+        else{
+            return false;
+        }
     }
     
 }
